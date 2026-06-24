@@ -321,7 +321,6 @@ const s = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "#f0f4f0",
     padding: 24,
   },
   container: {

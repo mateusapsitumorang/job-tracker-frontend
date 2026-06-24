@@ -106,6 +106,7 @@ const Login = () => {
                 if (error) setError("");
               }}
               required
+              autoComplete="email"
             />
 
             {/* Password field with toggle */}
@@ -125,6 +126,7 @@ const Login = () => {
                   if (error) setError("");
                 }}
                 required
+                autoComplete="current-password"
               />
               <button
                 type="button"

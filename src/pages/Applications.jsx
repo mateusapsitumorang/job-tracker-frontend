@@ -1543,10 +1543,10 @@ const Applications = () => {
               />
             </div>
             <CustomStatusSelect
-              value={form.status}
-              onChange={(val) => setForm({ ...form, status: val })}
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val)}
               options={STATUS_OPTIONS}
-              placeholder="Pilih Status"
+              placeholder="Semua Status"
             />
             {selectedIds.size > 0 && (
               <span style={styles.selectedCount}>

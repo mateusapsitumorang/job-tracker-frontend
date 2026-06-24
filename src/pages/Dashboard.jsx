@@ -198,8 +198,8 @@ const styles = {
     padding: 16,
     color: "#fff",
     marginTop: 4,
-    maxHeight: "180px", // Membatasi tinggi agar bisa di-scroll
-    overflowY: "auto", // Menambahkan scroll
+    maxHeight: "180px", 
+    overflowY: "auto", 
   },
   reminderTitle: { fontSize: 14, fontWeight: 700, margin: "0 0 4px" },
   reminderTime: { fontSize: 12, opacity: 0.85, margin: "0 0 12px" },
@@ -225,7 +225,7 @@ const styles = {
   listSub: { fontSize: 11, color: "#94a3b8", margin: 0 },
   bottomGrid: {
     display: "grid",
-    gridTemplateColumns: "1.2fr 1fr", // Diubah menjadi 2 kolom karena kartu Waktu dicabut
+    gridTemplateColumns: "1.2fr 1fr",
     gap: 16,
   },
   memberRow: {
@@ -287,7 +287,6 @@ const Dashboard = () => {
 
   if (!summary) return <PageLoader message="Memuat dashboard..." />;
 
-  // Jika API tidak mengirimkan summary.weekly, gunakan data dummy ini (Singkatan Bahasa Indonesia)
   const weekData = summary.weekly || [
     { day: "Sn", value: 4 },
     { day: "Sl", value: 7 },
@@ -324,7 +323,6 @@ const Dashboard = () => {
               Pantau dan kelola progres lamaran kerjamu dengan mudah.
             </p>
           </div>
-          {/* Header Actions (Tambah Lamaran & Import) telah dihapus */}
         </div>
 
         {/* STAT CARDS */}
@@ -441,7 +439,7 @@ const Dashboard = () => {
                       {new Date(item.interviewDate).toLocaleDateString(
                         "id-ID",
                         {
-                          dateStyle: "long", // Menampilkan format seperti "25 Juni 2026"
+                          dateStyle: "long", 
                         },
                       )}
                     </p>
@@ -479,13 +477,12 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* BOTTOM GRID: Status list, Progress radial (Diubah jadi 2 kolom, Waktu dihapus) */}
+        {/* BOTTOM GRID: Status list, Progress radial */}
         <div style={styles.bottomGrid}>
           <div style={styles.cardWhite}>
             <div style={styles.cardTitleRow}>
               <h3 style={styles.cardTitle}>Rincian Status</h3>
             </div>
-            {/* Hapus bagian avatar dari list status */}
             <div style={{ maxHeight: "250px", overflowY: "auto" }}>
               {summary.byStatus.map((s) => (
                 <div style={styles.memberRow} key={s.status}>
@@ -552,7 +549,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* --- TEKS PENJELASAN BARU DITAMBAHKAN DI SINI --- */}
             <p
               style={{
                 fontSize: 11,

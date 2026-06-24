@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
-  withCredentials: true, // kirim cookie refresh token
+  withCredentials: true, 
 });
 
 let accessToken = null;
@@ -30,7 +30,6 @@ api.interceptors.response.use(
     const isLoginCall = originalRequest?.url?.includes('/auth/login');
     const isRegisterCall = originalRequest?.url?.includes('/auth/register');
 
-    // Kalau error bukan 401, atau request dari auth endpoints, langsung reject
     if (
       error.response?.status !== 401 ||
       originalRequest._retry ||

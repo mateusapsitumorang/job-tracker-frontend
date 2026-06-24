@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { STATUS_OPTIONS } from "../constants.js";
+import CustomStatusSelect from "../components/CustomStatusSelect";
 
 const GREEN = "#15803d";
 const GREEN_DARK = "#166534";
@@ -17,7 +18,7 @@ const emptyForm = {
 const ApplicationForm = ({ initialData, onSubmit, onCancel }) => {
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
-  const [focusedInput, setFocusedInput] = useState(null); // Untuk efek fokus hijau
+  const [focusedInput, setFocusedInput] = useState(null);
 
   useEffect(() => {
     if (initialData) {
@@ -162,11 +163,11 @@ const ApplicationForm = ({ initialData, onSubmit, onCancel }) => {
             style={styles.closeBtn}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = "#fee2e2";
-              e.currentTarget.style.color = "#dc2626"; // Warna merah saat di-hover
+              e.currentTarget.style.color = "#dc2626";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "#94a3b8"; // Kembali abu-abu
+              e.currentTarget.style.color = "#94a3b8";
             }}
             title="Tutup"
           >
@@ -219,20 +220,12 @@ const ApplicationForm = ({ initialData, onSubmit, onCancel }) => {
       <div style={styles.row}>
         <div style={styles.fieldGroup}>
           <label style={styles.label}>Status</label>
-          <select
-            name="status"
+          <CustomStatusSelect
             value={form.status}
-            onChange={handleChange}
-            onFocus={() => setFocusedInput("status")}
-            onBlur={() => setFocusedInput(null)}
-            style={styles.input(focusedInput === "status")}
-          >
-            {STATUS_OPTIONS.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => setForm({ ...form, status: val })}
+            options={STATUS_OPTIONS}
+            placeholder="Pilih Status"
+          />
         </div>
         <div style={styles.fieldGroup}>
           <label style={styles.label}>Sumber Lowongan</label>

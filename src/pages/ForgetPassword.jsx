@@ -126,7 +126,6 @@ const ForgotPassword = () => {
           </p>
         </div>
 
-        {/* Panel Kanan - sembunyikan di mobile */}
         {!isMobile && (
           <div style={s.right}>
             <div style={s.glass}>

@@ -158,7 +158,6 @@ label {
   color: var(--muted);
 }
 
-/* PERUBAHAN: Menghapus max-width: 1100px agar tampilan layar penuh */
 .content {
   padding: 28px;
   width: 100%;
@@ -344,7 +343,6 @@ label {
   margin-top: 6px;
 }
 
-/* TAMBAHAN: Menghilangkan border outline hitam saat chart diklik */
 .recharts-wrapper *:focus {
   outline: none !important;
 }

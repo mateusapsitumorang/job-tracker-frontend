@@ -7,8 +7,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Saat aplikasi pertama dibuka, coba pakai refresh token (cookie) untuk
-  // mendapatkan access token baru tanpa user harus login manual lagi.
   useEffect(() => {
     const restoreSession = async () => {
       try {
@@ -38,7 +36,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const forgotPassword = async (email) => {
-    // Ganti yang lama (pakai axios) dengan ini:
     await api.post("/auth/forgot-password", { email });
   };
 

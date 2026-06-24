@@ -5,10 +5,8 @@ import Layout from "../components/Layout.jsx";
 import ApplicationForm from "../components/ApplicationForm.jsx";
 import * as XLSX from "xlsx";
 import PageLoader from "../components/PageLoader.jsx";
+import CustomStatusSelect from "../components/CustomStatusSelect";
 
-/* ============================================================
-   WARNA UTAMA — HIJAU #15803d
-   ============================================================ */
 const GREEN = "#15803d";
 const GREEN_LIGHT = "#dcfce7";
 const GREEN_BG = "#f0fdf4";
@@ -17,9 +15,6 @@ const GREEN_HOVER = "#166534";
 const GREEN_SHADOW = "rgba(21,128,61,0.25)";
 const GREEN_SHADOW_HOVER = "rgba(21,128,61,0.4)";
 
-/* ============================================================
-   Ikon SVG Modern
-   ============================================================ */
 const Icons = {
   plus: (
     <svg
@@ -284,9 +279,7 @@ const Icons = {
     </svg>
   ),
 };
-/* ============================================================
-   Komponen Loading Overlay
-   ============================================================ */
+
 const LoadingOverlay = ({ message, subMessage, progress }) => {
   if (!message) return null;
   return (
@@ -375,9 +368,7 @@ const LoadingOverlay = ({ message, subMessage, progress }) => {
     </div>
   );
 };
-/* ============================================================
-   Komponen Confirm Dialog
-   ============================================================ */
+
 const ConfirmDialog = ({
   visible,
   title,
@@ -395,7 +386,6 @@ const ConfirmDialog = ({
       onClick={isLoading ? undefined : onCancel}
     >
       <div style={styles.dialogCard} onClick={(e) => e.stopPropagation()}>
-        {/* LINGKARAN MERAH DAN BORDER DIHAPUS DI SINI */}
         <div
           style={{
             display: "flex",
@@ -487,9 +477,6 @@ const ConfirmDialog = ({
   );
 };
 
-/* ============================================================
-   STYLES
-   ============================================================ */
 const styles = {
   pageWrapper: {
     width: "100%",
@@ -927,9 +914,6 @@ const styles = {
   },
 };
 
-/* ============================================================
-   Helpers
-   ============================================================ */
 const formatDate = (iso) => {
   if (!iso) return "—";
   let d;
@@ -994,9 +978,6 @@ const mapImportedStatus = (label) => {
   return map[s] || "APPLIED";
 };
 
-/* ============================================================
-   Komponen Utama
-   ============================================================ */
 const Applications = () => {
   const [items, setItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -1021,7 +1002,6 @@ const Applications = () => {
   const [successMsg, setSuccessMsg] = useState("");
 
   const fileInputRef = useRef(null);
-  const statusSelectRef = useRef(null);
   const alertTimerRef = useRef(null);
 
   const showError = (msg, duration = 5000) => {
@@ -1039,7 +1019,6 @@ const Applications = () => {
       alertTimerRef.current = setTimeout(() => setSuccessMsg(""), duration);
   };
 
-  /* —————————————————————————————————————————————— */
   const fetchItems = useCallback(async () => {
     setLoading(true);
     try {
@@ -1139,15 +1118,12 @@ const Applications = () => {
     }
   };
 
-  // ✅ PERBAIKAN: Fungsi handleDeleteSingle disesuaikan
   const handleDeleteSingle = async () => {
     if (!deleteTarget) return;
 
-    // Simpan data ID dan Nama Perusahaan ke memori sementara
     const idToDelete = deleteTarget.id;
     const nameToDelete = deleteTarget.companyName;
 
-    // LANGSUNG tutup modal dialog sebelum API berjalan
     setDeleteTarget(null);
 
     setIsProcessing(true);
@@ -1207,7 +1183,6 @@ const Applications = () => {
     fetchItems();
   };
 
-  /* —————————————————————————————————————————————— */
   const isAllSelected = items.length > 0 && selectedIds.size === items.length;
   const isSomeSelected =
     selectedIds.size > 0 && selectedIds.size < items.length;
@@ -1227,18 +1202,7 @@ const Applications = () => {
   const handleStatusClick = (item) => {
     if (editingStatusId === item.id) return;
     setEditingStatusId(item.id);
-    setTimeout(() => {
-      const selectEl = statusSelectRef.current;
-      if (selectEl) {
-        selectEl.focus();
-        try {
-          const event = new MouseEvent("mousedown", { bubbles: true });
-          selectEl.dispatchEvent(event);
-        } catch (e) {}
-      }
-    }, 10);
   };
-
   const handleStatusChange = async (item, newStatus) => {
     const prevStatus = item.status;
     setItems((prev) =>
@@ -1265,7 +1229,6 @@ const Applications = () => {
     setEditingStatusId(null);
   };
 
-  /* —————————————————————————————————————————————— */
   const handleExport = () => {
     if (items.length === 0) {
       showError("Tidak ada data untuk diexport.", 3000);
@@ -1432,7 +1395,6 @@ const Applications = () => {
   const sortIcon = () =>
     sortDir === "asc" ? Icons.chevronUp : Icons.chevronDown;
 
-  /* —————————————————————————————————————————————— */
   if (loading) return <PageLoader message="Memuat lamaran..." />;
 
   return (
@@ -1446,7 +1408,6 @@ const Applications = () => {
           padding: 0 !important;
           overflow: hidden !important;
         }
-        /* ✅ Hapus override layout — biarkan flex bekerja */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
@@ -1581,18 +1542,12 @@ const Applications = () => {
                 }}
               />
             </div>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={styles.selectFilter}
-            >
-              <option value="">Semua Status</option>
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s.value} value={s.value}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+            <CustomStatusSelect
+              value={form.status}
+              onChange={(val) => setForm({ ...form, status: val })}
+              options={STATUS_OPTIONS}
+              placeholder="Pilih Status"
+            />
             {selectedIds.size > 0 && (
               <span style={styles.selectedCount}>
                 {selectedIds.size} item dipilih
@@ -1800,22 +1755,17 @@ const Applications = () => {
                           <td style={styles.td}>
                             <div style={styles.statusSelectWrapper}>
                               {isEditingStatus ? (
-                                <select
-                                  ref={statusSelectRef}
-                                  defaultValue={item.status}
-                                  style={styles.statusSelect}
-                                  onChange={(e) =>
-                                    handleStatusChange(item, e.target.value)
-                                  }
-                                  onBlur={handleStatusBlur}
-                                  autoFocus
-                                >
-                                  {STATUS_OPTIONS.map((s) => (
-                                    <option key={s.value} value={s.value}>
-                                      {s.label}
-                                    </option>
-                                  ))}
-                                </select>
+                                <div style={{ minWidth: 180 }}>
+                                  <CustomStatusSelect
+                                    value={item.status}
+                                    onChange={(val) => {
+                                      handleStatusChange(item, val);
+                                      setEditingStatusId(null);
+                                    }}
+                                    options={STATUS_OPTIONS}
+                                    placeholder="Pilih Status"
+                                  />
+                                </div>
                               ) : (
                                 <button
                                   style={styles.statusBadge(item.status)}

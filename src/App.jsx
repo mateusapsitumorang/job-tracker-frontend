@@ -4,7 +4,7 @@ import { AuthProvider } from "./context/AuthContext.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
-import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ForgotPassword from "./pages/ForgetPassword.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Applications from "./pages/Applications.jsx";
 import ResetPassword from "./pages/ResetPassword.jsx";

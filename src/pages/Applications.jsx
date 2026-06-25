@@ -980,15 +980,53 @@ const mapImportedStatus = (label) => {
 
 const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
   if (!item) return null;
-  const initial = (item.companyName || "?")[0].toUpperCase();
   return (
     <div style={styles.modalOverlay} onClick={onClose}>
       <div
         style={{ ...styles.modalCard, maxWidth: 520 }}
         onClick={(e) => e.stopPropagation()}
       >
-        <button style={styles.modalClose} onClick={onClose}>
-          {Icons.x}
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            background: "transparent",
+            border: "none",
+            color: "#94a3b8",
+            cursor: "pointer",
+            padding: "4px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: "6px",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = "#fee2e2";
+            e.currentTarget.style.color = "#dc2626";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = "transparent";
+            e.currentTarget.style.color = "#94a3b8";
+          }}
+          title="Tutup"
+        >
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
         </button>
 
         <div
@@ -999,23 +1037,6 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
             marginBottom: 16,
           }}
         >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: 12,
-              background: GREEN_BG,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 20,
-              fontWeight: 700,
-              color: GREEN,
-              flexShrink: 0,
-            }}
-          >
-            {initial}
-          </div>
           <div>
             <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
               {item.companyName || "—"}
@@ -1118,6 +1139,17 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
               onClose();
               onEdit(item);
             }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#166534";
+              e.currentTarget.style.boxShadow =
+                "0 4px 14px rgba(21,128,61,0.4)";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = GREEN;
+              e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
+              e.currentTarget.style.transform = "none";
+            }}
           >
             {Icons.edit} Edit Lamaran
           </button>
@@ -1125,7 +1157,7 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
             style={{
               padding: "10px 16px",
               borderRadius: 10,
-              background: "none",
+              background: "#fff",
               color: "#ef4444",
               border: "1px solid #fecaca",
               fontSize: 14,
@@ -1134,10 +1166,21 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
               display: "flex",
               alignItems: "center",
               gap: 6,
+              transition: "all 0.2s",
             }}
             onClick={() => {
               onClose();
               onDelete(item);
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "#fef2f2";
+              e.currentTarget.style.borderColor = "#ef4444";
+              e.currentTarget.style.transform = "translateY(-1px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "#fff";
+              e.currentTarget.style.borderColor = "#fecaca";
+              e.currentTarget.style.transform = "none";
             }}
           >
             {Icons.trash} Hapus
@@ -1605,16 +1648,18 @@ const Applications = () => {
                   disabled={isProcessing}
                   onMouseEnter={(e) => {
                     if (!isProcessing) {
-                      e.target.style.boxShadow =
+                      e.currentTarget.style.backgroundColor = "#dc2626";
+                      e.currentTarget.style.boxShadow =
                         "0 4px 14px rgba(239,68,68,0.4)";
-                      e.target.style.transform = "translateY(-1px)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (!isProcessing) {
-                      e.target.style.boxShadow =
+                      e.currentTarget.style.backgroundColor = "#ef4444";
+                      e.currentTarget.style.boxShadow =
                         "0 2px 8px rgba(239,68,68,0.25)";
-                      e.target.style.transform = "none";
+                      e.currentTarget.style.transform = "none";
                     }
                   }}
                 >
@@ -1668,16 +1713,17 @@ const Applications = () => {
                 disabled={isProcessing}
                 onMouseEnter={(e) => {
                   if (!isProcessing) {
-                    e.target.style.background = GREEN_HOVER;
-                    e.target.style.boxShadow = `0 4px 14px ${GREEN_SHADOW_HOVER}`;
-                    e.target.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.backgroundColor = "#166534";
+                    e.currentTarget.style.boxShadow =
+                      "0 4px 14px rgba(21,128,61,0.4)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!isProcessing) {
-                    e.target.style.background = GREEN;
-                    e.target.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
-                    e.target.style.transform = "none";
+                    e.currentTarget.style.backgroundColor = GREEN;
+                    e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
+                    e.currentTarget.style.transform = "none";
                   }
                 }}
               >
@@ -1727,6 +1773,17 @@ const Applications = () => {
                 }}
                 onClick={() => setSearch(searchInput)}
                 title="Cari"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#166534";
+                  e.currentTarget.style.boxShadow =
+                    "0 4px 14px rgba(21,128,61,0.4)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = GREEN;
+                  e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
+                  e.currentTarget.style.transform = "none";
+                }}
               >
                 {Icons.search}
               </button>
@@ -1936,13 +1993,22 @@ const Applications = () => {
                               style={{
                                 ...styles.companyName,
                                 cursor: "pointer",
-                                textDecoration: "underline",
-                                textDecorationColor: "#cbd5e1",
-                                textUnderlineOffset: 3,
+                                padding: "2px 6px",
+                                borderRadius: 6,
+                                transition: "all 0.15s",
+                                display: "inline-block",
                               }}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setDetailItem(item);
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.color = GREEN;
+                                e.currentTarget.style.background = GREEN_BG;
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.color = "";
+                                e.currentTarget.style.background = "";
                               }}
                               title="Lihat detail"
                             >

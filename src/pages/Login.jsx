@@ -234,8 +234,8 @@ const Login = () => {
           </p>
           <p style={s.support}>
             Butuh bantuan?{" "}
-            <a href="mailto:mateusapsitumorang@gmail.com" style={s.link}>
-              mateusapsitumorang@gmail.com
+            <a href="mailto:jobtracker.noreplyy@gmail.com" style={s.link}>
+              jobtracker.noreplyy@gmail.com
             </a>
           </p>
         </div>

@@ -1,9 +1,3 @@
-// ============================================================
-// KOMPONEN: CustomStatusSelect
-// Ganti bagian <select> filter status di Applications.jsx
-// dengan komponen ini. Desain: dropdown hijau ala react-select.
-// ============================================================
-
 import { useState, useRef, useEffect } from "react";
 
 const GREEN = "#15803d";
@@ -32,14 +26,6 @@ const ChevronDown = ({ isOpen }) => (
   </svg>
 );
 
-// ── komponen utama ───────────────────────────────────────────
-/**
- * Props:
- *   value        – string nilai yang dipilih saat ini
- *   onChange     – (value: string) => void
- *   options      – [{ value: string, label: string }]
- *   placeholder  – string, default "Semua Status"
- */
 export const CustomStatusSelect = ({
   value,
   onChange,
@@ -48,6 +34,7 @@ export const CustomStatusSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [hoveredValue, setHoveredValue] = useState(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef(null);
 
   // Tutup dropdown jika klik di luar
@@ -70,10 +57,9 @@ export const CustomStatusSelect = ({
     return () => document.removeEventListener("keydown", handleKey);
   }, []);
 
-  const selectedLabel =
-    value
-      ? options.find((o) => o.value === value)?.label ?? placeholder
-      : placeholder;
+  const selectedLabel = value
+    ? (options.find((o) => o.value === value)?.label ?? placeholder)
+    : placeholder;
 
   const allOptions = [{ value: "", label: placeholder }, ...options];
 
@@ -88,10 +74,40 @@ export const CustomStatusSelect = ({
         aria-expanded={isOpen}
         aria-haspopup="listbox"
         tabIndex={0}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          if (!isOpen && containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            const dropdownHeight = Math.min(options.length * 44 + 44, 260);
+            const showAbove =
+              spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+            setDropdownPos({
+              top: showAbove ? rect.top - dropdownHeight : rect.bottom,
+              left: rect.left,
+              width: rect.width,
+              showAbove,
+            });
+          }
+          setIsOpen((prev) => !prev);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
+            if (!isOpen && containerRef.current) {
+              const rect = containerRef.current.getBoundingClientRect();
+              const spaceBelow = window.innerHeight - rect.bottom;
+              const spaceAbove = rect.top;
+              const dropdownHeight = Math.min(options.length * 44 + 44, 260);
+              const showAbove =
+                spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+              setDropdownPos({
+                top: showAbove ? rect.top - dropdownHeight : rect.bottom,
+                left: rect.left,
+                width: rect.width,
+                showAbove,
+              });
+            }
             setIsOpen((prev) => !prev);
           }
         }}
@@ -101,23 +117,27 @@ export const CustomStatusSelect = ({
           justifyContent: "space-between",
           gap: 8,
           padding: "11px 14px",
-          border: isOpen
-            ? `1.5px solid ${GREEN}`
-            : "1.5px solid #e2e8f0",
-          borderRadius: isOpen ? "10px 10px 0 0" : 10,
+          border: isOpen ? `1.5px solid ${GREEN}` : "1.5px solid #e2e8f0",
+          borderRadius: 10,
           background: "#fff",
           cursor: "pointer",
           fontSize: 14,
           color: value ? "#1e293b" : "#94a3b8",
           fontWeight: value ? 600 : 400,
           outline: "none",
-          boxShadow: isOpen
-            ? `0 0 0 3px rgba(21,128,61,0.15)`
-            : "none",
-          transition: "border-color 0.15s, box-shadow 0.15s, border-radius 0.1s",
+          boxShadow: isOpen ? `0 0 0 3px rgba(21,128,61,0.15)` : "none",
+          transition:
+            "border-color 0.15s, box-shadow 0.15s, border-radius 0.1s",
         }}
       >
-        <span style={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+        <span
+          style={{
+            flex: 1,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
           {selectedLabel}
         </span>
         <span style={{ color: isOpen ? GREEN : "#94a3b8", display: "flex" }}>
@@ -130,29 +150,32 @@ export const CustomStatusSelect = ({
         <div
           role="listbox"
           style={{
-            position: "absolute",
-            top: "100%",
-            left: 0,
-            right: 0,
+            position: "fixed",
+            top: dropdownPos.top,
+            left: dropdownPos.left,
+            width: dropdownPos.width,
             background: "#fff",
             border: `1.5px solid ${GREEN}`,
-            borderTop: "none",
-            borderRadius: "0 0 10px 10px",
+            borderRadius: dropdownPos.showAbove
+              ? "10px 10px 0 0"
+              : "0 0 10px 10px",
             boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
-            zIndex: 500,
-            overflow: "hidden",
+            zIndex: 9999,
+            maxHeight: 260,
+            overflowY: "auto",
             animation: "cssFadeDown 0.15s ease",
           }}
         >
           <style>{`
-            @keyframes cssFadeDown {
-              from { opacity: 0; transform: translateY(-4px); }
-              to   { opacity: 1; transform: translateY(0); }
-            }
-          `}</style>
+      @keyframes cssFadeDown {
+        from { opacity: 0; transform: translateY(-4px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+    `}</style>
 
           {allOptions.map((opt) => {
-            const isSelected = opt.value === value || (!value && opt.value === "");
+            const isSelected =
+              opt.value === value || (!value && opt.value === "");
             const isHovered = hoveredValue === opt.value;
 
             return (
@@ -175,16 +198,12 @@ export const CustomStatusSelect = ({
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: 8,
-                  color: isSelected
-                    ? GREEN
-                    : isHovered
-                    ? "#1e293b"
-                    : "#374151",
+                  color: isSelected ? GREEN : isHovered ? "#1e293b" : "#374151",
                   background: isSelected
                     ? GREEN_BG
                     : isHovered
-                    ? "#f8fafc"
-                    : "#fff",
+                      ? "#f8fafc"
+                      : "#fff",
                   transition: "background 0.1s, color 0.1s",
                   borderLeft: isSelected
                     ? `3px solid ${GREEN}`
@@ -216,36 +235,3 @@ export const CustomStatusSelect = ({
 };
 
 export default CustomStatusSelect;
-
-
-// ============================================================
-// CARA PAKAI DI Applications.jsx:
-// ============================================================
-//
-// 1. Import komponen:
-//    import CustomStatusSelect from "./CustomStatusSelect";
-//    (sesuaikan path relatif)
-//
-// 2. Ganti bagian <select> filter status ini:
-//
-//    <select
-//      value={statusFilter}
-//      onChange={(e) => setStatusFilter(e.target.value)}
-//      style={styles.selectFilter}
-//    >
-//      <option value="">Semua Status</option>
-//      {STATUS_OPTIONS.map((s) => (
-//        <option key={s.value} value={s.value}>{s.label}</option>
-//      ))}
-//    </select>
-//
-//    Dengan:
-//
-//    <CustomStatusSelect
-//      value={statusFilter}
-//      onChange={(val) => setStatusFilter(val)}
-//      options={STATUS_OPTIONS}
-//      placeholder="Semua Status"
-//    />
-//
-// ============================================================

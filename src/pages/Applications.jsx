@@ -1141,14 +1141,9 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = "#166534";
-              e.currentTarget.style.boxShadow =
-                "0 4px 14px rgba(21,128,61,0.4)";
-              e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = GREEN;
-              e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
-              e.currentTarget.style.transform = "none";
             }}
           >
             {Icons.edit} Edit Lamaran
@@ -1175,12 +1170,10 @@ const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
             onMouseEnter={(e) => {
               e.currentTarget.style.backgroundColor = "#fef2f2";
               e.currentTarget.style.borderColor = "#ef4444";
-              e.currentTarget.style.transform = "translateY(-1px)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.backgroundColor = "#fff";
               e.currentTarget.style.borderColor = "#fecaca";
-              e.currentTarget.style.transform = "none";
             }}
           >
             {Icons.trash} Hapus
@@ -1647,20 +1640,12 @@ const Applications = () => {
                   onClick={() => setBulkDeleteConfirm(true)}
                   disabled={isProcessing}
                   onMouseEnter={(e) => {
-                    if (!isProcessing) {
+                    if (!isProcessing)
                       e.currentTarget.style.backgroundColor = "#dc2626";
-                      e.currentTarget.style.boxShadow =
-                        "0 4px 14px rgba(239,68,68,0.4)";
-                      e.currentTarget.style.transform = "translateY(-1px)";
-                    }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isProcessing) {
+                    if (!isProcessing)
                       e.currentTarget.style.backgroundColor = "#ef4444";
-                      e.currentTarget.style.boxShadow =
-                        "0 2px 8px rgba(239,68,68,0.25)";
-                      e.currentTarget.style.transform = "none";
-                    }
                   }}
                 >
                   {Icons.trash} Hapus ({selectedIds.size})
@@ -1712,19 +1697,12 @@ const Applications = () => {
                 }}
                 disabled={isProcessing}
                 onMouseEnter={(e) => {
-                  if (!isProcessing) {
+                  if (!isProcessing)
                     e.currentTarget.style.backgroundColor = "#166534";
-                    e.currentTarget.style.boxShadow =
-                      "0 4px 14px rgba(21,128,61,0.4)";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                  }
                 }}
                 onMouseLeave={(e) => {
-                  if (!isProcessing) {
+                  if (!isProcessing)
                     e.currentTarget.style.backgroundColor = GREEN;
-                    e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
-                    e.currentTarget.style.transform = "none";
-                  }
                 }}
               >
                 {Icons.plus} Tambah Lamaran
@@ -1775,14 +1753,9 @@ const Applications = () => {
                 title="Cari"
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = "#166534";
-                  e.currentTarget.style.boxShadow =
-                    "0 4px 14px rgba(21,128,61,0.4)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = GREEN;
-                  e.currentTarget.style.boxShadow = `0 2px 8px ${GREEN_SHADOW}`;
-                  e.currentTarget.style.transform = "none";
                 }}
               >
                 {Icons.search}

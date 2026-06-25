@@ -962,7 +962,7 @@ const mapImportedStatus = (label) => {
     "SUDAH MELAMAR": "APPLIED",
     "MENUNGGU REVIEW": "WAITING_REVIEW",
     "WAITING REVIEW": "WAITING_REVIEW",
-    "ASSESSMENT": "ASSESSMENT",
+    ASSESSMENT: "ASSESSMENT",
     "INTERVIEW HR": "INTERVIEW_HR",
     "INTERVIEW USER": "INTERVIEW_USER",
     "INTERVIEW FINAL": "INTERVIEW_FINAL",
@@ -1261,6 +1261,9 @@ const Applications = () => {
     setSelectedIds(new Set());
   }, [items]);
   useEffect(() => {
+    setEditingStatusId(null);
+  }, [items]);
+  useEffect(() => {
     return () => {
       if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
     };
@@ -1438,6 +1441,16 @@ const Applications = () => {
   const handleStatusBlur = () => {
     setEditingStatusId(null);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (editingStatusId !== null) {
+        setEditingStatusId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [editingStatusId]);
 
   const handleExport = () => {
     if (items.length === 0) {
@@ -1998,7 +2011,11 @@ const Applications = () => {
                           <td style={styles.td}>
                             <div style={styles.statusSelectWrapper}>
                               {isEditingStatus ? (
-                                <div style={{ minWidth: 180 }}>
+                                <div
+                                  style={{ minWidth: 180 }}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                >
                                   <CustomStatusSelect
                                     value={item.status}
                                     onChange={(val) => {

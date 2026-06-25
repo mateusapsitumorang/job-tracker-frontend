@@ -978,6 +978,176 @@ const mapImportedStatus = (label) => {
   return map[s] || "APPLIED";
 };
 
+const DetailModal = ({ item, onClose, onEdit, onDelete }) => {
+  if (!item) return null;
+  const initial = (item.companyName || "?")[0].toUpperCase();
+  return (
+    <div style={styles.modalOverlay} onClick={onClose}>
+      <div
+        style={{ ...styles.modalCard, maxWidth: 520 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button style={styles.modalClose} onClick={onClose}>
+          {Icons.x}
+        </button>
+
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 12,
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 12,
+              background: GREEN_BG,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              fontWeight: 700,
+              color: GREEN,
+              flexShrink: 0,
+            }}
+          >
+            {initial}
+          </div>
+          <div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a" }}>
+              {item.companyName || "—"}
+            </div>
+            <div style={{ fontSize: 14, color: "#64748b", marginTop: 2 }}>
+              {item.position || "—"}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <span style={styles.statusBadge(item.status)}>
+            {statusLabel(item.status)}
+          </span>
+        </div>
+
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            color: "#94a3b8",
+            marginBottom: 10,
+            paddingBottom: 8,
+            borderBottom: "1px solid #f1f5f9",
+          }}
+        >
+          Informasi Lamaran
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 14,
+            marginBottom: 20,
+          }}
+        >
+          {[
+            {
+              label: "Tanggal Lamar",
+              value: formatDate(item.appliedDate || item.createdAt),
+            },
+            {
+              label: "Tanggal Interview",
+              value: formatDate(item.interviewDate),
+            },
+            { label: "Sumber", value: item.source || "—" },
+          ].map(({ label, value }) => (
+            <div key={label}>
+              <div style={{ fontSize: 11, color: "#94a3b8", marginBottom: 3 }}>
+                {label}
+              </div>
+              <div style={{ fontSize: 14, color: "#0f172a" }}>{value}</div>
+            </div>
+          ))}
+        </div>
+
+        <div
+          style={{
+            fontSize: 11,
+            fontWeight: 600,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            color: "#94a3b8",
+            marginBottom: 8,
+            paddingBottom: 8,
+            borderBottom: "1px solid #f1f5f9",
+          }}
+        >
+          Catatan
+        </div>
+        <div
+          style={{
+            background: "#f8fafc",
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 13,
+            color: "#64748b",
+            lineHeight: 1.6,
+            minHeight: 48,
+          }}
+        >
+          {item.notes || "Tidak ada catatan."}
+        </div>
+
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            marginTop: 20,
+            paddingTop: 16,
+            borderTop: "1px solid #f1f5f9",
+          }}
+        >
+          <button
+            style={{ ...styles.btnPrimary, flex: 1, justifyContent: "center" }}
+            onClick={() => {
+              onClose();
+              onEdit(item);
+            }}
+          >
+            {Icons.edit} Edit Lamaran
+          </button>
+          <button
+            style={{
+              padding: "10px 16px",
+              borderRadius: 10,
+              background: "none",
+              color: "#ef4444",
+              border: "1px solid #fecaca",
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+            }}
+            onClick={() => {
+              onClose();
+              onDelete(item);
+            }}
+          >
+            {Icons.trash} Hapus
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Applications = () => {
   const [items, setItems] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
@@ -989,6 +1159,8 @@ const Applications = () => {
   const [sortBy, setSortBy] = useState("appliedDate");
   const [sortDir, setSortDir] = useState("desc");
   const [editingStatusId, setEditingStatusId] = useState(null);
+  const [searchInput, setSearchInput] = useState("");
+  const [detailItem, setDetailItem] = useState(null);
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [deleteTarget, setDeleteTarget] = useState(null);
@@ -1524,23 +1696,40 @@ const Applications = () => {
 
           {/* FILTERS */}
           <div style={styles.filtersRow}>
-            <div style={styles.searchWrapper}>
-              <span style={styles.searchIcon}>{Icons.search}</span>
-              <input
-                type="text"
-                placeholder="Cari perusahaan atau posisi..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={styles.searchInput}
-                onFocus={(e) => {
-                  e.target.style.borderColor = GREEN;
-                  e.target.style.boxShadow = `0 0 0 3px ${GREEN_SHADOW}`;
+            <div style={{ ...styles.searchWrapper, display: "flex", gap: 8 }}>
+              <div style={{ position: "relative", flex: 1 }}>
+                <span style={styles.searchIcon}>{Icons.search}</span>
+                <input
+                  type="text"
+                  placeholder="Cari perusahaan atau posisi... (Enter untuk cari)"
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") setSearch(searchInput);
+                  }}
+                  style={styles.searchInput}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = GREEN;
+                    e.target.style.boxShadow = `0 0 0 3px ${GREEN_SHADOW}`;
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e2e8f0";
+                    e.target.style.boxShadow = "none";
+                  }}
+                />
+              </div>
+              <button
+                style={{
+                  ...styles.btnPrimary,
+                  padding: "10px 16px",
+                  gap: 0,
+                  flexShrink: 0,
                 }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = "#e2e8f0";
-                  e.target.style.boxShadow = "none";
-                }}
-              />
+                onClick={() => setSearch(searchInput)}
+                title="Cari"
+              >
+                {Icons.search}
+              </button>
             </div>
             <CustomStatusSelect
               value={statusFilter}
@@ -1743,7 +1932,20 @@ const Applications = () => {
                           </td>
                           <td style={styles.tdNo}>{index + 1}</td>
                           <td style={styles.td}>
-                            <span style={styles.companyName}>
+                            <span
+                              style={{
+                                ...styles.companyName,
+                                cursor: "pointer",
+                                textDecoration: "underline",
+                                textDecorationColor: "#cbd5e1",
+                                textUnderlineOffset: 3,
+                              }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDetailItem(item);
+                              }}
+                              title="Lihat detail"
+                            >
                               {item.companyName || "—"}
                             </span>
                           </td>
@@ -1905,7 +2107,15 @@ const Applications = () => {
           />
         </div>
       </div>
-
+      <DetailModal
+        item={detailItem}
+        onClose={() => setDetailItem(null)}
+        onEdit={(item) => {
+          setEditing(item);
+          setShowForm(true);
+        }}
+        onDelete={(item) => setDeleteTarget(item)}
+      />
       <LoadingOverlay
         message={loadingMessage}
         subMessage={loadingSub}

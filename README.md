@@ -1,4 +1,4 @@
-# Job Tracker — Frontend
+# Job Tracker - Frontend
 
 Aplikasi web untuk melacak lamaran pekerjaan: mulai dari wishlist, proses interview, hingga status diterima/ditolak. Dibangun dengan React + Vite, dilengkapi dashboard visual, manajemen daftar lamaran, dan autentikasi pengguna.
 

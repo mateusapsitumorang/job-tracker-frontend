@@ -600,9 +600,10 @@ const Dashboard = () => {
                 borderTop: "1px dashed #e2e8f0",
               }}
             >
-              *Dihitung dari lamaran <b>Diterima</b> dibagi dengan lamaran yang
-              sudah <b>Selesai</b> (Diterima + Ditolak + Withdrawn). Lamaran
-              yang masih <b>Dalam Proses</b> tidak dihitung sebagai gagal.
+              *Dihitung dari lamaran yang sudah{" "}
+              <b>lanjut ke tahap berikutnya</b> (Menunggu Review, Assessment,
+              Interview HR/User/Final, Offer, atau Diterima) dibagi dengan{" "}
+              <b>Total Lamaran</b>.
             </p>
           </div>
         </div>

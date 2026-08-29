@@ -8,6 +8,60 @@ import NoteEditor from "../components/NoteEditor.jsx";
 const GREEN = "#15803d";
 const GREEN_BG = "#f0fdf4";
 
+const PinIcon = ({ size = 14 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 17v5" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+  </svg>
+);
+
+const WordIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="2" y="2" width="20" height="20" rx="3" fill="#2b579a" />
+    <path
+      d="M6 7.5h1.7l1.15 6.3 1.35-6.3h1.6l1.35 6.3 1.15-6.3H16l-2 9h-1.75L11 10.6 9.75 16.5H8l-2-9z"
+      fill="#fff"
+    />
+  </svg>
+);
+
+const PdfIcon = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <rect x="2" y="2" width="20" height="20" rx="3" fill="#dc2626" />
+    <text
+      x="12"
+      y="15.5"
+      fontSize="7.5"
+      fontWeight="700"
+      fill="#fff"
+      textAnchor="middle"
+      fontFamily="Arial, sans-serif"
+    >
+      PDF
+    </text>
+  </svg>
+);
+
 const styles = {
   page: {
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
@@ -26,6 +80,25 @@ const styles = {
   },
   pageTitle: { fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0 },
   pageSubtitle: { fontSize: 13, color: "#64748b", margin: "4px 0 0" },
+  headerActions: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  exportBtn: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: 6,
+    padding: "9px 14px",
+    borderRadius: 10,
+    border: "1px solid #e2e8f0",
+    background: "#fff",
+    color: "#334155",
+    fontWeight: 600,
+    fontSize: 13,
+    cursor: "pointer",
+  },
   newNoteBtn: {
     display: "inline-flex",
     alignItems: "center",
@@ -89,6 +162,9 @@ const styles = {
     fontWeight: 700,
     color: active ? GREEN : "#0f172a",
     margin: 0,
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
@@ -104,6 +180,12 @@ const styles = {
     WebkitLineClamp: 2,
     WebkitBoxOrient: "vertical",
   },
+  noteItemActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    flexShrink: 0,
+  },
   pinBtn: (pinned) => ({
     width: 24,
     height: 24,
@@ -116,7 +198,6 @@ const styles = {
     justifyContent: "center",
     cursor: "pointer",
     flexShrink: 0,
-    fontSize: 14,
   }),
   emptyList: {
     padding: "24px 12px",
@@ -125,6 +206,56 @@ const styles = {
     fontSize: 12.5,
   },
   rightCol: { minHeight: "70vh" },
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(15,23,42,0.45)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 50,
+  },
+  modalBox: {
+    background: "#fff",
+    borderRadius: 14,
+    padding: 20,
+    width: 340,
+    maxWidth: "90vw",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+  },
+  modalTitle: {
+    fontSize: 15,
+    fontWeight: 700,
+    color: "#0f172a",
+    margin: "0 0 8px",
+  },
+  modalText: {
+    fontSize: 12.5,
+    color: "#64748b",
+    margin: "0 0 18px",
+    lineHeight: 1.5,
+  },
+  modalActions: { display: "flex", justifyContent: "flex-end", gap: 8 },
+  modalCancelBtn: {
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "1px solid #e2e8f0",
+    background: "#fff",
+    color: "#334155",
+    fontWeight: 600,
+    fontSize: 12.5,
+    cursor: "pointer",
+  },
+  modalConfirmBtn: {
+    padding: "8px 14px",
+    borderRadius: 8,
+    border: "none",
+    background: "#ef4444",
+    color: "#fff",
+    fontWeight: 600,
+    fontSize: 12.5,
+    cursor: "pointer",
+  },
 };
 
 // Cuplikan teks singkat dari dokumen JSON Tiptap (dipakai untuk update
@@ -148,7 +279,22 @@ const quickSnippet = (docJson, maxLen = 140) => {
 };
 
 const formatShortDate = (d) =>
-  new Date(d).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+  new Date(d).toLocaleDateString("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+const downloadBlob = (blob, filename) => {
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
 
 const Notes = () => {
   const [notes, setNotes] = useState(null); // null = belum dimuat
@@ -158,6 +304,9 @@ const Notes = () => {
   const [openingNote, setOpeningNote] = useState(false);
   const [creating, setCreating] = useState(false);
   const [pinningId, setPinningId] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [exportingWord, setExportingWord] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -239,7 +388,6 @@ const Notes = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Hapus catatan ini? Tindakan ini tidak bisa dibatalkan.")) return;
     const prevNotes = notes;
     setNotes((prev) => prev.filter((n) => n.id !== id));
     if (selectedId === id) {
@@ -252,6 +400,12 @@ const Notes = () => {
       setNotes(prevNotes);
       setError("Gagal menghapus catatan.");
     }
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    handleDelete(deleteTarget.id);
+    setDeleteTarget(null);
   };
 
   // Saat autosave berhasil, sinkronkan list secara lokal (tanpa refetch).
@@ -276,6 +430,38 @@ const Notes = () => {
         return new Date(b.updatedAt) - new Date(a.updatedAt);
       });
     });
+  };
+
+  const handleExportWord = async () => {
+    if (!selectedNote) return;
+    setExportingWord(true);
+    try {
+      const { data } = await api.get(`/notes/${selectedNote.id}/export`, {
+        params: { format: "docx" },
+        responseType: "blob",
+      });
+      downloadBlob(data, `${selectedNote.title || "catatan"}.docx`);
+    } catch {
+      setError("Gagal mengekspor catatan ke Word.");
+    } finally {
+      setExportingWord(false);
+    }
+  };
+
+  const handleExportPdf = async () => {
+    if (!selectedNote) return;
+    setExportingPdf(true);
+    try {
+      const { data } = await api.get(`/notes/${selectedNote.id}/export`, {
+        params: { format: "pdf" },
+        responseType: "blob",
+      });
+      downloadBlob(data, `${selectedNote.title || "catatan"}.pdf`);
+    } catch {
+      setError("Gagal mengekspor catatan ke PDF.");
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   const { pinned, others } = useMemo(() => {
@@ -307,27 +493,43 @@ const Notes = () => {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={styles.noteItemTitleRow}>
             <p style={styles.noteTitle(active)}>
-              {note.pinned ? "📌 " : ""}
+              {note.pinned && <PinIcon size={12} />}
               {note.title || "Tanpa judul"}
             </p>
           </div>
           <p style={styles.noteDate}>{formatShortDate(note.updatedAt)}</p>
           {note.snippet && <p style={styles.noteSnippet}>{note.snippet}</p>}
         </div>
-        <button
-          style={styles.pinBtn(note.pinned)}
-          onClick={(e) => handleTogglePin(e, note)}
-          disabled={pinningId === note.id}
-          title={note.pinned ? "Unpin" : "Pin"}
-        >
-          📌
-        </button>
+        <div style={styles.noteItemActions}>
+          <button
+            style={styles.pinBtn(note.pinned)}
+            onClick={(e) => handleTogglePin(e, note)}
+            disabled={pinningId === note.id}
+            title={note.pinned ? "Unpin" : "Pin"}
+          >
+            <PinIcon size={14} />
+          </button>
+          <button
+            className="btn-action-delete"
+            title="Hapus"
+            onClick={(e) => {
+              e.stopPropagation();
+              setDeleteTarget(note);
+            }}
+          >
+            {Icons.trash}
+          </button>
+        </div>
       </div>
     );
   };
 
   return (
     <Layout>
+      <style>{`
+        .btn-action-delete { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-action-delete:hover { color: #ef4444 !important; background: #fef2f2 !important; }
+      `}</style>
       <div style={styles.page}>
         <div style={styles.headerRow}>
           <div>
@@ -336,13 +538,31 @@ const Notes = () => {
               Simpan catatan, ide, dan persiapan seputar pencarian kerjamu.
             </p>
           </div>
-          <button
-            style={styles.newNoteBtn}
-            onClick={handleCreate}
-            disabled={creating}
-          >
-            + {creating ? "Membuat..." : "Catatan Baru"}
-          </button>
+          <div style={styles.headerActions}>
+            <button
+              style={styles.exportBtn}
+              onClick={handleExportWord}
+              disabled={!selectedNote || exportingWord}
+              title="Export ke Word"
+            >
+              <WordIcon size={16} /> {exportingWord ? "Mengekspor..." : "Word"}
+            </button>
+            <button
+              style={styles.exportBtn}
+              onClick={handleExportPdf}
+              disabled={!selectedNote || exportingPdf}
+              title="Export ke PDF"
+            >
+              <PdfIcon size={16} /> {exportingPdf ? "Mengekspor..." : "PDF"}
+            </button>
+            <button
+              style={styles.newNoteBtn}
+              onClick={handleCreate}
+              disabled={creating}
+            >
+              {Icons.plus} {creating ? "Membuat..." : "Tambah Catatan"}
+            </button>
+          </div>
         </div>
 
         <div style={styles.columns}>
@@ -402,6 +622,29 @@ const Notes = () => {
           </div>
         </div>
       </div>
+
+      {deleteTarget && (
+        <div style={styles.modalOverlay} onClick={() => setDeleteTarget(null)}>
+          <div style={styles.modalBox} onClick={(e) => e.stopPropagation()}>
+            <p style={styles.modalTitle}>Hapus catatan?</p>
+            <p style={styles.modalText}>
+              "{deleteTarget.title || "Tanpa judul"}" akan dihapus secara
+              permanen. Tindakan ini tidak bisa dibatalkan.
+            </p>
+            <div style={styles.modalActions}>
+              <button
+                style={styles.modalCancelBtn}
+                onClick={() => setDeleteTarget(null)}
+              >
+                Batal
+              </button>
+              <button style={styles.modalConfirmBtn} onClick={confirmDelete}>
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

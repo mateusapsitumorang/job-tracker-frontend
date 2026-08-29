@@ -926,19 +926,17 @@ const styles = {
 
 const formatDate = (iso) => {
   if (!iso) return "—";
-  // String tanggal murni ("YYYY-MM-DD", tanpa komponen waktu) sudah
-  // otomatis diparsing sebagai UTC 00:00 oleh JS Date, sama seperti string
-  // ISO datetime dari backend. Jadi keduanya cukup di-parse langsung lalu
-  // ditampilkan dengan timeZone: "UTC" supaya tanggal yang tampil selalu
-  // sama persis dengan tanggal yang tersimpan/diinput, tidak bergeser
-  // sehari akibat timezone browser masing-masing user.
-  const d = new Date(iso);
+  let d;
+  if (typeof iso === "string" && /^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    d = new Date(iso + "T00:00:00");
+  } else {
+    d = new Date(iso);
+  }
   if (isNaN(d.getTime())) return String(iso);
   return d.toLocaleDateString("id-ID", {
     year: "numeric",
     month: "short",
     day: "numeric",
-    timeZone: "UTC",
   });
 };
 
@@ -1451,7 +1449,9 @@ const Applications = () => {
       // refetch seluruh dataset — cukup update item ini di state lokal.
       if (data?.application) {
         setItems((prev) =>
-          prev.map((i) => (i.id === item.id ? { ...i, ...data.application } : i)),
+          prev.map((i) =>
+            i.id === item.id ? { ...i, ...data.application } : i,
+          ),
         );
       }
       showSuccess("Status berhasil diperbarui!");

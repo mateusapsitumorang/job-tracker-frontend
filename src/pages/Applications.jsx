@@ -906,6 +906,15 @@ const styles = {
     marginLeft: 2,
     opacity: 0.6,
   },
+  miniSpinner: {
+    width: 10,
+    height: 10,
+    borderRadius: "50%",
+    border: "1.5px solid currentColor",
+    borderTopColor: "transparent",
+    display: "inline-block",
+    animation: "spin 0.6s linear infinite",
+  },
   dataInfo: {
     fontSize: 12,
     color: "#94a3b8",
@@ -1197,6 +1206,7 @@ const Applications = () => {
   const [sortBy, setSortBy] = useState("appliedDate");
   const [sortDir, setSortDir] = useState("desc");
   const [editingStatusId, setEditingStatusId] = useState(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState(null);
   const [searchInput, setSearchInput] = useState("");
   const [detailItem, setDetailItem] = useState(null);
 
@@ -1417,16 +1427,36 @@ const Applications = () => {
     setEditingStatusId(item.id);
   };
   const handleStatusChange = async (item, newStatus) => {
+    if (newStatus === item.status) {
+      setEditingStatusId(null);
+      return;
+    }
     const prevStatus = item.status;
+
+    // Optimistic update: langsung ubah status di UI, tanpa full-page loading.
+    // Hanya baris/kontrol milik lamaran ini yang ditandai "sedang diproses".
     setItems((prev) =>
       prev.map((i) => (i.id === item.id ? { ...i, status: newStatus } : i)),
     );
     setEditingStatusId(null);
+    setStatusUpdatingId(item.id);
+
     try {
-      await api.patch(`/applications/${item.id}`, { status: newStatus });
+      const { data } = await api.patch(`/applications/${item.id}`, {
+        status: newStatus,
+      });
+      // Sinkronkan dengan data final dari server (mis. updatedAt) tanpa
+      // refetch seluruh dataset — cukup update item ini di state lokal.
+      if (data?.application) {
+        setItems((prev) =>
+          prev.map((i) =>
+            i.id === item.id ? { ...i, ...data.application } : i,
+          ),
+        );
+      }
       showSuccess("Status berhasil diperbarui!");
-      fetchItems();
     } catch (err) {
+      // Gagal → rollback ke status semula dan tampilkan pesan error yang jelas.
       setItems((prev) =>
         prev.map((i) => (i.id === item.id ? { ...i, status: prevStatus } : i)),
       );
@@ -1435,6 +1465,8 @@ const Applications = () => {
         err?.response?.data?.error ||
         "Gagal memperbarui status.";
       showError(errMsg);
+    } finally {
+      setStatusUpdatingId(null);
     }
   };
 
@@ -1637,6 +1669,7 @@ const Applications = () => {
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .btn-action-edit { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
         .btn-action-edit:hover { color: ${GREEN} !important; background: ${GREEN_BG} !important; }
         .btn-action-delete { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
@@ -1948,6 +1981,7 @@ const Applications = () => {
                     {items.map((item, index) => {
                       const isSelected = selectedIds.has(item.id);
                       const isEditingStatus = editingStatusId === item.id;
+                      const isStatusUpdating = statusUpdatingId === item.id;
                       return (
                         <tr
                           key={item.id}
@@ -2028,13 +2062,28 @@ const Applications = () => {
                                 </div>
                               ) : (
                                 <button
-                                  style={styles.statusBadge(item.status)}
+                                  style={{
+                                    ...styles.statusBadge(item.status),
+                                    ...(isStatusUpdating
+                                      ? {
+                                          opacity: 0.6,
+                                          cursor: "not-allowed",
+                                        }
+                                      : {}),
+                                  }}
+                                  disabled={isStatusUpdating}
                                   onClick={(e) => {
                                     e.stopPropagation();
+                                    if (isStatusUpdating) return;
                                     handleStatusClick(item);
                                   }}
-                                  title="Klik untuk edit status"
+                                  title={
+                                    isStatusUpdating
+                                      ? "Sedang memperbarui status..."
+                                      : "Klik untuk edit status"
+                                  }
                                   onMouseEnter={(e) => {
+                                    if (isStatusUpdating) return;
                                     e.currentTarget.style.boxShadow =
                                       "0 2px 8px rgba(0,0,0,0.1)";
                                     e.currentTarget.style.transform =
@@ -2047,18 +2096,22 @@ const Applications = () => {
                                 >
                                   {statusLabel(item.status)}
                                   <span style={styles.chevronDownSmall}>
-                                    <svg
-                                      width="10"
-                                      height="10"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="3"
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                    >
-                                      <polyline points="6 9 12 15 18 9" />
-                                    </svg>
+                                    {isStatusUpdating ? (
+                                      <span style={styles.miniSpinner} />
+                                    ) : (
+                                      <svg
+                                        width="10"
+                                        height="10"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                      >
+                                        <polyline points="6 9 12 15 18 9" />
+                                      </svg>
+                                    )}
                                   </span>
                                 </button>
                               )}

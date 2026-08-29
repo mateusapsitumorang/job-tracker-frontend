@@ -3,6 +3,7 @@ import api from "../api/axios.js";
 import { statusLabel } from "../constants.js";
 import Layout from "../components/Layout.jsx";
 import PageLoader from "../components/PageLoader.jsx";
+import ActivityCalendar from "../components/ActivityCalendar.jsx";
 
 import {
   BarChart,
@@ -514,6 +515,11 @@ const Dashboard = () => {
               ))
             )}
           </div>
+        </div>
+
+        {/* KALENDER AKTIVITAS */}
+        <div style={{ marginBottom: 16 }}>
+          <ActivityCalendar />
         </div>
 
         {/* BOTTOM GRID: Status list, Progress radial */}

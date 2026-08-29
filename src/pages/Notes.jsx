@@ -26,12 +26,7 @@ const PinIcon = ({ size = 14 }) => (
 );
 
 const WordIcon = ({ size = 16 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="20" height="20" rx="3" fill="#2b579a" />
     <path
       d="M6 7.5h1.7l1.15 6.3 1.35-6.3h1.6l1.35 6.3 1.15-6.3H16l-2 9h-1.75L11 10.6 9.75 16.5H8l-2-9z"
@@ -41,12 +36,7 @@ const WordIcon = ({ size = 16 }) => (
 );
 
 const PdfIcon = ({ size = 16 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="2" width="20" height="20" rx="3" fill="#dc2626" />
     <text
       x="12"
@@ -61,6 +51,195 @@ const PdfIcon = ({ size = 16 }) => (
     </text>
   </svg>
 );
+
+const PlusIcon = ({ size = 16 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M5 12h14" />
+    <path d="M12 5v14" />
+  </svg>
+);
+
+const TrashIcon = ({ size = 16 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);
+
+const AlertCircleIcon = ({ size = 28 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <line x1="12" y1="8" x2="12" y2="12" />
+    <line x1="12" y1="16" x2="12.01" y2="16" />
+  </svg>
+);
+
+const SpinnerIcon = ({ size = 18 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="10" stroke="#e2e8f0" strokeWidth="2.5" fill="none" />
+    <path
+      d="M12 2a10 10 0 0 1 10 10"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      style={{ transformOrigin: "center", animation: "spin 0.8s linear infinite" }}
+    />
+  </svg>
+);
+
+// Sama persis polanya dengan ConfirmDialog di Applications.jsx: ikon warning,
+// title & message dinamis lewat props, tombol rata tengah lebar sama, dan
+// loading state (spinner) saat proses konfirmasi berjalan.
+const ConfirmDialog = ({
+  visible,
+  title,
+  message,
+  confirmLabel,
+  confirmStyle,
+  onConfirm,
+  onCancel,
+  isLoading,
+}) => {
+  if (!visible) return null;
+  return (
+    <div
+      style={styles.dialogOverlay}
+      onClick={isLoading ? undefined : onCancel}
+    >
+      <div style={styles.dialogCard} onClick={(e) => e.stopPropagation()}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 16px",
+            color: "#ef4444",
+          }}
+        >
+          <AlertCircleIcon size={28} />
+        </div>
+        <h3
+          style={{
+            fontSize: 18,
+            fontWeight: 700,
+            color: "#0f172a",
+            margin: "0 0 8px",
+          }}
+        >
+          {title || "Konfirmasi"}
+        </h3>
+        <p
+          style={{
+            fontSize: 14,
+            color: "#64748b",
+            margin: "0 0 24px",
+            lineHeight: 1.5,
+            whiteSpace: "pre-line",
+          }}
+        >
+          {message}
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+          <button
+            onClick={onCancel}
+            disabled={isLoading}
+            style={{
+              padding: "10px 24px",
+              borderRadius: 12,
+              border: "1.5px solid #e2e8f0",
+              background: "#fff",
+              color: "#475569",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              flex: 1,
+              transition: "all 0.15s",
+              opacity: isLoading ? 0.6 : 1,
+            }}
+          >
+            Batal
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            style={{
+              padding: "10px 24px",
+              borderRadius: 12,
+              border: "none",
+              background: confirmStyle?.background || "#ef4444",
+              color: "#fff",
+              fontWeight: 600,
+              fontSize: 14,
+              cursor: isLoading ? "not-allowed" : "pointer",
+              flex: 1,
+              transition: "all 0.15s",
+              boxShadow:
+                confirmStyle?.boxShadow || "0 2px 8px rgba(239,68,68,0.3)",
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              opacity: isLoading ? 0.7 : 1,
+            }}
+          >
+            {isLoading ? (
+              <span
+                style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+              >
+                <SpinnerIcon size={18} /> Menghapus...
+              </span>
+            ) : (
+              confirmLabel || "Ya"
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const styles = {
   page: {
@@ -80,12 +259,7 @@ const styles = {
   },
   pageTitle: { fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0 },
   pageSubtitle: { fontSize: 13, color: "#64748b", margin: "4px 0 0" },
-  headerActions: {
-    display: "flex",
-    gap: 8,
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
+  headerActions: { display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" },
   exportBtn: {
     display: "inline-flex",
     alignItems: "center",
@@ -206,55 +380,27 @@ const styles = {
     fontSize: 12.5,
   },
   rightCol: { minHeight: "70vh" },
-  modalOverlay: {
+  dialogOverlay: {
     position: "fixed",
     inset: 0,
-    background: "rgba(15,23,42,0.45)",
+    background: "rgba(15,23,42,0.5)",
+    backdropFilter: "blur(6px)",
     display: "flex",
-    alignItems: "center",
     justifyContent: "center",
-    zIndex: 50,
-  },
-  modalBox: {
-    background: "#fff",
-    borderRadius: 14,
+    alignItems: "center",
+    zIndex: 2000,
     padding: 20,
-    width: 340,
-    maxWidth: "90vw",
-    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+    animation: "fadeIn 0.2s ease",
   },
-  modalTitle: {
-    fontSize: 15,
-    fontWeight: 700,
-    color: "#0f172a",
-    margin: "0 0 8px",
-  },
-  modalText: {
-    fontSize: 12.5,
-    color: "#64748b",
-    margin: "0 0 18px",
-    lineHeight: 1.5,
-  },
-  modalActions: { display: "flex", justifyContent: "flex-end", gap: 8 },
-  modalCancelBtn: {
-    padding: "8px 14px",
-    borderRadius: 8,
-    border: "1px solid #e2e8f0",
+  dialogCard: {
     background: "#fff",
-    color: "#334155",
-    fontWeight: 600,
-    fontSize: 12.5,
-    cursor: "pointer",
-  },
-  modalConfirmBtn: {
-    padding: "8px 14px",
-    borderRadius: 8,
-    border: "none",
-    background: "#ef4444",
-    color: "#fff",
-    fontWeight: 600,
-    fontSize: 12.5,
-    cursor: "pointer",
+    borderRadius: 20,
+    padding: "32px 28px 24px",
+    width: "100%",
+    maxWidth: 440,
+    boxShadow: "0 25px 80px rgba(0,0,0,0.2)",
+    textAlign: "center",
+    animation: "scaleIn 0.25s ease",
   },
 };
 
@@ -305,6 +451,7 @@ const Notes = () => {
   const [creating, setCreating] = useState(false);
   const [pinningId, setPinningId] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [exportingWord, setExportingWord] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
 
@@ -387,6 +534,8 @@ const Notes = () => {
     }
   };
 
+  // Dipakai juga oleh NoteEditor lewat prop onDeleted (mis. tombol hapus di
+  // dalam editor). Optimistic update di list, rollback kalau API gagal.
   const handleDelete = async (id) => {
     const prevNotes = notes;
     setNotes((prev) => prev.filter((n) => n.id !== id));
@@ -402,9 +551,14 @@ const Notes = () => {
     }
   };
 
-  const confirmDelete = () => {
+  // Dipanggil dari tombol "Ya, Hapus" pada ConfirmDialog di list catatan.
+  // Menunggu proses handleDelete selesai supaya spinner loading di dialog
+  // tampil selama proses berlangsung, sama seperti pola di Applications.jsx.
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
-    handleDelete(deleteTarget.id);
+    setIsDeleting(true);
+    await handleDelete(deleteTarget.id);
+    setIsDeleting(false);
     setDeleteTarget(null);
   };
 
@@ -517,7 +671,7 @@ const Notes = () => {
               setDeleteTarget(note);
             }}
           >
-            {Icons.trash}
+            <TrashIcon size={16} />
           </button>
         </div>
       </div>
@@ -527,6 +681,9 @@ const Notes = () => {
   return (
     <Layout>
       <style>{`
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
         .btn-action-delete { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
         .btn-action-delete:hover { color: #ef4444 !important; background: #fef2f2 !important; }
       `}</style>
@@ -560,7 +717,7 @@ const Notes = () => {
               onClick={handleCreate}
               disabled={creating}
             >
-              {Icons.plus} {creating ? "Membuat..." : "Tambah Catatan"}
+              <PlusIcon size={16} /> {creating ? "Membuat..." : "Tambah Catatan"}
             </button>
           </div>
         </div>
@@ -623,28 +780,19 @@ const Notes = () => {
         </div>
       </div>
 
-      {deleteTarget && (
-        <div style={styles.modalOverlay} onClick={() => setDeleteTarget(null)}>
-          <div style={styles.modalBox} onClick={(e) => e.stopPropagation()}>
-            <p style={styles.modalTitle}>Hapus catatan?</p>
-            <p style={styles.modalText}>
-              "{deleteTarget.title || "Tanpa judul"}" akan dihapus secara
-              permanen. Tindakan ini tidak bisa dibatalkan.
-            </p>
-            <div style={styles.modalActions}>
-              <button
-                style={styles.modalCancelBtn}
-                onClick={() => setDeleteTarget(null)}
-              >
-                Batal
-              </button>
-              <button style={styles.modalConfirmBtn} onClick={confirmDelete}>
-                Hapus
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        visible={!!deleteTarget}
+        title="Hapus Catatan"
+        message={`Apakah Anda yakin ingin menghapus catatan "${deleteTarget?.title || "Tanpa judul"}"?\n\nTindakan ini tidak dapat dibatalkan.`}
+        confirmLabel="Ya, Hapus"
+        confirmStyle={{
+          background: "#ef4444",
+          boxShadow: "0 2px 8px rgba(239,68,68,0.3)",
+        }}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
+        isLoading={isDeleting}
+      />
     </Layout>
   );
 };

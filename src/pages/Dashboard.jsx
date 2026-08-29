@@ -110,6 +110,12 @@ const styles = {
     gap: 16,
     marginBottom: 16,
   },
+  grid2: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: 16,
+    marginBottom: 16,
+  },
   statCardGreen: {
     background: GREEN,
     borderRadius: 16,
@@ -198,8 +204,8 @@ const styles = {
     padding: 16,
     color: "#fff",
     marginTop: 4,
-    maxHeight: "180px", 
-    overflowY: "auto", 
+    maxHeight: "180px",
+    overflowY: "auto",
   },
   reminderTitle: { fontSize: 14, fontWeight: 700, margin: "0 0 4px" },
   reminderTime: { fontSize: 12, opacity: 0.85, margin: "0 0 12px" },
@@ -300,17 +306,13 @@ const Dashboard = () => {
   const progressPct = summary.successRate ?? 0;
   const radialData = [{ name: "progress", value: progressPct, fill: GREEN }];
 
-  const ongoingStatuses = [
-    "APPLIED",
-    "WAITING_REVIEW",
-    "INTERVIEW_HR",
-    "INTERVIEW_USER",
-    "INTERVIEW_FINAL",
-  ];
-
-  const ongoingCount = summary.byStatus
-    .filter((s) => ongoingStatuses.includes(s.status))
-    .reduce((acc, s) => acc + s._count._all, 0);
+  // Dalam Proses, Selesai, Diterima, Ditolak, dan Withdrawn dihitung di backend
+  // (lihat getDashboardSummary) agar satu-satunya sumber kebenaran untuk KPI
+  // dashboard, dan tidak ada logic kategori status yang terduplikasi/berbeda
+  // di frontend.
+  const ongoingCount = summary.inProgress ?? 0;
+  const completedCount = summary.completed ?? 0;
+  const withdrawnCount = summary.withdrawn ?? 0;
 
   return (
     <Layout>
@@ -393,6 +395,43 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* STAT CARDS TAMBAHAN: Selesai & Withdrawn */}
+        <div style={styles.grid2}>
+          <div style={styles.statCardWhite}>
+            <div style={styles.statTopRow}>
+              <span style={{ ...styles.statLabel, color: "#475569" }}>
+                Selesai
+              </span>
+              <span style={styles.statArrowCircleDark}>
+                {Icons.arrowUpRight}
+              </span>
+            </div>
+            <h2 style={{ ...styles.statValue, color: "#0f172a" }}>
+              {completedCount}
+            </h2>
+            <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              Sudah punya hasil akhir
+            </span>
+          </div>
+
+          <div style={styles.statCardWhite}>
+            <div style={styles.statTopRow}>
+              <span style={{ ...styles.statLabel, color: "#475569" }}>
+                Withdrawn
+              </span>
+              <span style={styles.statArrowCircleDark}>
+                {Icons.arrowUpRight}
+              </span>
+            </div>
+            <h2 style={{ ...styles.statValue, color: "#0f172a" }}>
+              {withdrawnCount}
+            </h2>
+            <span style={{ fontSize: 11, color: "#94a3b8" }}>
+              Dibatalkan oleh kamu
+            </span>
+          </div>
+        </div>
+
         {/* MIDDLE GRID: Analytics, Reminder, Project List */}
         <div style={styles.midGrid}>
           <div style={styles.cardWhite}>
@@ -439,7 +478,7 @@ const Dashboard = () => {
                       {new Date(item.interviewDate).toLocaleDateString(
                         "id-ID",
                         {
-                          dateStyle: "long", 
+                          dateStyle: "long",
                         },
                       )}
                     </p>
@@ -561,9 +600,9 @@ const Dashboard = () => {
                 borderTop: "1px dashed #e2e8f0",
               }}
             >
-              *Persentase ini dihitung dari jumlah lamaran dengan status{" "}
-              <b>Diterima (Accepted/Offer)</b> dibagi dengan{" "}
-              <b>Total Seluruh Lamaran</b>.
+              *Dihitung dari lamaran <b>Diterima</b> dibagi dengan lamaran yang
+              sudah <b>Selesai</b> (Diterima + Ditolak + Withdrawn). Lamaran
+              yang masih <b>Dalam Proses</b> tidak dihitung sebagai gagal.
             </p>
           </div>
         </div>

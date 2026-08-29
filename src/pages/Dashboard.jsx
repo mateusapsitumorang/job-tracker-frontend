@@ -480,6 +480,7 @@ const Dashboard = () => {
                         "id-ID",
                         {
                           dateStyle: "long",
+                          timeZone: "UTC",
                         },
                       )}
                     </p>
@@ -508,7 +509,10 @@ const Dashboard = () => {
                     <p style={styles.listText}>{item.companyName}</p>
                     <p style={styles.listSub}>
                       {item.position} •{" "}
-                      {new Date(item.interviewDate).toLocaleDateString("id-ID")}
+                      {new Date(item.interviewDate).toLocaleDateString(
+                        "id-ID",
+                        { timeZone: "UTC" },
+                      )}
                     </p>
                   </div>
                 </div>

@@ -58,6 +58,23 @@ const Icons = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </svg>
   ),
+  notes: (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M4 3h13l3 3v15a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+      <line x1="8" y1="9" x2="15" y2="9" />
+      <line x1="8" y1="13" x2="15" y2="13" />
+      <line x1="8" y1="17" x2="12" y2="17" />
+    </svg>
+  ),
   menu: (
     <svg
       width="22"
@@ -248,6 +265,7 @@ const Layout = ({ children }) => {
   const navItems = [
     { path: "/dashboard", label: "Dashboard", icon: Icons.dashboard },
     { path: "/applications", label: "Lamaran", icon: Icons.lamaran },
+    { path: "/notes", label: "Catatan", icon: Icons.notes },
   ];
 
   const Spinner = () => (

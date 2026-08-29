@@ -1,13 +1,21 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Suspense, lazy } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import PrivateRoute from "./components/PrivateRoute.jsx";
+import PageLoader from "./components/PageLoader.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import ForgotPassword from "./pages/ForgetPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
+
+// Dashboard & Applications tetap eager-loaded (halaman utama yang paling
+// sering diakses). Notes di-lazy-load karena membawa dependency berat
+// (rich text editor + export PDF/Word) yang tidak perlu membebani initial
+// load halaman lain.
 import Dashboard from "./pages/Dashboard.jsx";
 import Applications from "./pages/Applications.jsx";
-import ResetPassword from "./pages/ResetPassword.jsx";
+const Notes = lazy(() => import("./pages/Notes.jsx"));
 
 const pageVariants = {
   initial: { opacity: 0, x: 80 },
@@ -87,6 +95,18 @@ function AnimatedRoutes() {
               <PrivateRoute>
                 <PageWrapper>
                   <Applications />
+                </PageWrapper>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/notes"
+            element={
+              <PrivateRoute>
+                <PageWrapper>
+                  <Suspense fallback={<PageLoader message="Memuat catatan..." />}>
+                    <Notes />
+                  </Suspense>
                 </PageWrapper>
               </PrivateRoute>
             }

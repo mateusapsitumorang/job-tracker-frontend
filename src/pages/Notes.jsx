@@ -386,10 +386,18 @@ const styles = {
     flex: "0 0 auto",
     flexShrink: 0,
   },
+  // Global `button { padding: 8px 16px }` dari index.css ikut ke-apply ke
+  // tombol ini karena inline style di bawah tidak pernah men-set `padding`.
+  // Dengan box-sizing: border-box global, padding itu "memakan" width/height
+  // 24px yang sudah kita paksa, jadi content-box jadi lebih kecil dari icon
+  // 14x14 -> icon kepotong. Set padding:0 di sini supaya tidak mewarisi
+  // style tombol global sama sekali.
   pinBtn: (pinned) => ({
     width: 24,
     height: 24,
     minWidth: 24,
+    padding: 0,
+    lineHeight: 1,
     borderRadius: 6,
     border: "none",
     background: "transparent",

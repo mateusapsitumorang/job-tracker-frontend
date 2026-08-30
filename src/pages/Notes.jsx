@@ -8,6 +8,23 @@ import NoteEditor from "../components/NoteEditor.jsx";
 const GREEN = "#15803d";
 const GREEN_BG = "#f0fdf4";
 
+const PinIcon = ({ size = 14 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M12 17v5" />
+    <path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
+  </svg>
+);
+
 const WordIcon = ({ size = 16 }) => (
   <svg
     width={size}
@@ -640,9 +657,7 @@ const Notes = () => {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={styles.noteItemTitleRow}>
             <p style={styles.noteTitle(active)}>
-              {note.pinned && (
-                <i className="bi bi-pin" style={{ fontSize: 12 }} />
-              )}
+              {note.pinned && <PinIcon size={12} />}
               {note.title || "Tanpa judul"}
             </p>
           </div>
@@ -656,7 +671,7 @@ const Notes = () => {
             disabled={pinningId === note.id}
             title={note.pinned ? "Unpin" : "Pin"}
           >
-            <i className="bi bi-pin" style={{ fontSize: 14 }} />
+            <PinIcon size={14} />
           </button>
         </div>
       </div>

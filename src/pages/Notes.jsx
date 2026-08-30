@@ -312,6 +312,8 @@ const styles = {
     maxHeight: "calc(100vh - 340px)",
     minHeight: 220,
     overflowY: "auto",
+    overflowX: "hidden",
+    boxSizing: "border-box",
   },
   sectionLabel: {
     fontSize: 10.5,
@@ -320,34 +322,52 @@ const styles = {
     letterSpacing: "0.06em",
     padding: "8px 8px 6px",
   },
+  // width:"100%" + boxSizing memastikan item tidak pernah lebih lebar dari
+  // listCard, jadi tombol pin di ujung kanan tidak pernah terdorong keluar.
   noteItem: (active) => ({
     display: "flex",
     alignItems: "flex-start",
     gap: 8,
+    width: "100%",
+    boxSizing: "border-box",
     padding: "10px 8px",
     borderRadius: 10,
     cursor: "pointer",
     background: active ? GREEN_BG : "transparent",
     marginBottom: 2,
+    overflow: "hidden",
   }),
+  noteTextCol: {
+    flex: "1 1 auto",
+    minWidth: 0,
+    overflow: "hidden",
+  },
   noteItemTitleRow: {
     display: "flex",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 6,
+    gap: 4,
+    minWidth: 0,
   },
+  // display:"flex" dihapus dari <p> title — flex di elemen yang punya
+  // overflow:hidden/whiteSpace:nowrap mencegah ellipsis bekerja dengan benar
+  // dan bisa membuat lebar elemen melebihi container. Teksnya sekarang
+  // dibungkus <span> terpisah yang benar-benar di-truncate.
   noteTitle: (active) => ({
     fontSize: 13,
     fontWeight: 700,
     color: active ? GREEN : "#0f172a",
     margin: 0,
-    display: "flex",
-    alignItems: "center",
-    gap: 4,
+    minWidth: 0,
+    flex: "1 1 auto",
+  }),
+  noteTitleIcon: { flexShrink: 0, display: "inline-flex" },
+  noteTitleText: {
+    display: "block",
     overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap",
-  }),
+    minWidth: 0,
+  },
   noteDate: { fontSize: 10.5, color: "#94a3b8", margin: "2px 0 3px" },
   noteSnippet: {
     fontSize: 11.5,
@@ -363,11 +383,13 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: 2,
+    flex: "0 0 auto",
     flexShrink: 0,
   },
   pinBtn: (pinned) => ({
     width: 24,
     height: 24,
+    minWidth: 24,
     borderRadius: 6,
     border: "none",
     background: "transparent",
@@ -654,11 +676,17 @@ const Notes = () => {
         style={styles.noteItem(active)}
         onClick={() => openNote(note.id)}
       >
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={styles.noteTextCol}>
           <div style={styles.noteItemTitleRow}>
             <p style={styles.noteTitle(active)}>
-              {note.pinned && <PinIcon size={12} />}
-              {note.title || "Tanpa judul"}
+              {note.pinned && (
+                <span style={styles.noteTitleIcon}>
+                  <PinIcon size={12} />
+                </span>
+              )}
+              <span style={styles.noteTitleText}>
+                {note.title || "Tanpa judul"}
+              </span>
             </p>
           </div>
           <p style={styles.noteDate}>{formatShortDate(note.updatedAt)}</p>

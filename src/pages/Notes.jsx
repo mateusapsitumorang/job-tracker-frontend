@@ -26,7 +26,12 @@ const PinIcon = ({ size = 14 }) => (
 );
 
 const WordIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <rect x="2" y="2" width="20" height="20" rx="3" fill="#2b579a" />
     <path
       d="M6 7.5h1.7l1.15 6.3 1.35-6.3h1.6l1.35 6.3 1.15-6.3H16l-2 9h-1.75L11 10.6 9.75 16.5H8l-2-9z"
@@ -36,7 +41,12 @@ const WordIcon = ({ size = 16 }) => (
 );
 
 const PdfIcon = ({ size = 16 }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    xmlns="http://www.w3.org/2000/svg"
+  >
     <rect x="2" y="2" width="20" height="20" rx="3" fill="#dc2626" />
     <text
       x="12"
@@ -52,40 +62,20 @@ const PdfIcon = ({ size = 16 }) => (
   </svg>
 );
 
-const PlusIcon = ({ size = 16 }) => (
+// Disamakan persis dengan icon plus di Applications.jsx (18px, strokeWidth 2.5, garis).
+const PlusIcon = ({ size = 18 }) => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
     width={size}
     height={size}
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2"
+    strokeWidth="2.5"
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M5 12h14" />
-    <path d="M12 5v14" />
-  </svg>
-);
-
-const TrashIcon = ({ size = 16 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M3 6h18" />
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    <line x1="10" x2="10" y1="11" y2="17" />
-    <line x1="14" x2="14" y1="11" y2="17" />
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
 
@@ -119,13 +109,23 @@ const SpinnerIcon = ({ size = 18 }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <circle cx="12" cy="12" r="10" stroke="#e2e8f0" strokeWidth="2.5" fill="none" />
+    <circle
+      cx="12"
+      cy="12"
+      r="10"
+      stroke="#e2e8f0"
+      strokeWidth="2.5"
+      fill="none"
+    />
     <path
       d="M12 2a10 10 0 0 1 10 10"
       stroke="currentColor"
       strokeWidth="2.5"
       strokeLinecap="round"
-      style={{ transformOrigin: "center", animation: "spin 0.8s linear infinite" }}
+      style={{
+        transformOrigin: "center",
+        animation: "spin 0.8s linear infinite",
+      }}
     />
   </svg>
 );
@@ -259,7 +259,12 @@ const styles = {
   },
   pageTitle: { fontSize: 26, fontWeight: 700, color: "#0f172a", margin: 0 },
   pageSubtitle: { fontSize: 13, color: "#64748b", margin: "4px 0 0" },
-  headerActions: { display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" },
+  headerActions: {
+    display: "flex",
+    gap: 8,
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
   exportBtn: {
     display: "inline-flex",
     alignItems: "center",
@@ -283,7 +288,7 @@ const styles = {
     background: GREEN,
     color: "#fff",
     fontWeight: 600,
-    fontSize: 13,
+    fontSize: 14,
     cursor: "pointer",
   },
   columns: {
@@ -431,17 +436,6 @@ const formatShortDate = (d) =>
     year: "numeric",
   });
 
-const downloadBlob = (blob, filename) => {
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  window.URL.revokeObjectURL(url);
-};
-
 const Notes = () => {
   const [notes, setNotes] = useState(null); // null = belum dimuat
   const [error, setError] = useState("");
@@ -534,8 +528,8 @@ const Notes = () => {
     }
   };
 
-  // Dipakai juga oleh NoteEditor lewat prop onDeleted (mis. tombol hapus di
-  // dalam editor). Optimistic update di list, rollback kalau API gagal.
+  // Eksekusi hapus yang sesungguhnya (dipanggil setelah user konfirmasi).
+  // Optimistic update di list, rollback kalau API gagal.
   const handleDelete = async (id) => {
     const prevNotes = notes;
     setNotes((prev) => prev.filter((n) => n.id !== id));
@@ -551,9 +545,17 @@ const Notes = () => {
     }
   };
 
-  // Dipanggil dari tombol "Ya, Hapus" pada ConfirmDialog di list catatan.
-  // Menunggu proses handleDelete selesai supaya spinner loading di dialog
-  // tampil selama proses berlangsung, sama seperti pola di Applications.jsx.
+  // Dipanggil dari tombol trash di NoteEditor (satu-satunya entry point hapus
+  // sekarang, karena tombol trash di list sudah dihapus). Cari data note-nya
+  // lalu tampilkan ConfirmDialog dulu sebelum benar-benar menghapus.
+  const requestDelete = (id) => {
+    const target =
+      notes?.find((n) => n.id === id) ||
+      (selectedNote?.id === id ? selectedNote : null);
+    if (target) setDeleteTarget(target);
+  };
+
+  // Dipanggil dari tombol "Ya, Hapus" pada ConfirmDialog.
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
@@ -586,15 +588,20 @@ const Notes = () => {
     });
   };
 
+  // Export sesungguhnya berjalan client-side lewat utils yang sama dengan
+  // yang tadinya dipakai di NoteEditor.jsx (bukan lewat backend endpoint).
   const handleExportWord = async () => {
     if (!selectedNote) return;
     setExportingWord(true);
     try {
-      const { data } = await api.get(`/notes/${selectedNote.id}/export`, {
-        params: { format: "docx" },
-        responseType: "blob",
-      });
-      downloadBlob(data, `${selectedNote.title || "catatan"}.docx`);
+      let docJson = {};
+      try {
+        docJson = selectedNote.content ? JSON.parse(selectedNote.content) : {};
+      } catch {
+        docJson = {};
+      }
+      const { exportNoteAsDocx } = await import("../utils/exportNoteDocx.js");
+      await exportNoteAsDocx(selectedNote.title, docJson);
     } catch {
       setError("Gagal mengekspor catatan ke Word.");
     } finally {
@@ -606,11 +613,14 @@ const Notes = () => {
     if (!selectedNote) return;
     setExportingPdf(true);
     try {
-      const { data } = await api.get(`/notes/${selectedNote.id}/export`, {
-        params: { format: "pdf" },
-        responseType: "blob",
-      });
-      downloadBlob(data, `${selectedNote.title || "catatan"}.pdf`);
+      let docJson = {};
+      try {
+        docJson = selectedNote.content ? JSON.parse(selectedNote.content) : {};
+      } catch {
+        docJson = {};
+      }
+      const { exportNoteAsPdf } = await import("../utils/exportNotePdf.js");
+      exportNoteAsPdf(selectedNote.title, docJson);
     } catch {
       setError("Gagal mengekspor catatan ke PDF.");
     } finally {
@@ -663,16 +673,6 @@ const Notes = () => {
           >
             <PinIcon size={14} />
           </button>
-          <button
-            className="btn-action-delete"
-            title="Hapus"
-            onClick={(e) => {
-              e.stopPropagation();
-              setDeleteTarget(note);
-            }}
-          >
-            <TrashIcon size={16} />
-          </button>
         </div>
       </div>
     );
@@ -684,8 +684,6 @@ const Notes = () => {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes scaleIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .btn-action-delete { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
-        .btn-action-delete:hover { color: #ef4444 !important; background: #fef2f2 !important; }
       `}</style>
       <div style={styles.page}>
         <div style={styles.headerRow}>
@@ -717,7 +715,8 @@ const Notes = () => {
               onClick={handleCreate}
               disabled={creating}
             >
-              <PlusIcon size={16} /> {creating ? "Membuat..." : "Tambah Catatan"}
+              <PlusIcon size={18} />{" "}
+              {creating ? "Membuat..." : "Tambah Catatan"}
             </button>
           </div>
         </div>
@@ -773,7 +772,7 @@ const Notes = () => {
               <NoteEditor
                 note={selectedNote}
                 onSaved={handleSaved}
-                onDeleted={handleDelete}
+                onDeleted={requestDelete}
               />
             )}
           </div>

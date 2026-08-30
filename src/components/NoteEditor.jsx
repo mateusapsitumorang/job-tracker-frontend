@@ -12,6 +12,26 @@ const GREEN_BG = "#f0fdf4";
 
 const AUTOSAVE_DELAY = 900; // ms - hindari request ke server di setiap ketikan
 
+const TrashIcon = ({ size = 16 }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 6h18" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <line x1="10" x2="10" y1="11" y2="17" />
+    <line x1="14" x2="14" y1="11" y2="17" />
+  </svg>
+);
+
 const styles = {
   wrapper: {
     background: "#fff",
@@ -93,46 +113,6 @@ const styles = {
     background: "#e9edec",
     margin: "0 6px",
   },
-  exportWrap: { position: "relative" },
-  exportBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    padding: "6px 12px",
-    borderRadius: 8,
-    border: "1px solid #e2e8f0",
-    background: "#fff",
-    color: "#0f172a",
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-  exportMenu: {
-    position: "absolute",
-    top: "calc(100% + 6px)",
-    right: 0,
-    background: "#fff",
-    borderRadius: 10,
-    border: "1px solid #e2e8f0",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-    minWidth: 160,
-    overflow: "hidden",
-    zIndex: 20,
-  },
-  exportMenuItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    width: "100%",
-    padding: "10px 14px",
-    border: "none",
-    background: "#fff",
-    color: "#0f172a",
-    fontSize: 13,
-    fontWeight: 500,
-    cursor: "pointer",
-    textAlign: "left",
-  },
   editorBody: {
     flex: 1,
     overflowY: "auto",
@@ -157,8 +137,6 @@ const ToolIcon = ({ children }) => (
 const NoteEditor = ({ note, onSaved, onDeleted }) => {
   const [title, setTitle] = useState(note?.title || "");
   const [saveStatus, setSaveStatus] = useState("idle"); // idle | saving | saved | failed
-  const [showExportMenu, setShowExportMenu] = useState(false);
-  const [exporting, setExporting] = useState(null); // 'pdf' | 'docx' | null
 
   const saveTimerRef = useRef(null);
   const noteIdRef = useRef(note?.id);
@@ -205,7 +183,6 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
       }
     }
     editor.commands.setContent(parsed || "", false);
-    setShowExportMenu(false);
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     };
@@ -267,24 +244,6 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
     editor.chain().focus().extendMarkRange("link").setLink({ href: url }).run();
   };
 
-  const handleExport = async (format) => {
-    if (!editor) return;
-    setExporting(format);
-    setShowExportMenu(false);
-    try {
-      const docJson = editor.getJSON();
-      if (format === "pdf") {
-        const { exportNoteAsPdf } = await import("../utils/exportNotePdf.js");
-        exportNoteAsPdf(title, docJson);
-      } else {
-        const { exportNoteAsDocx } = await import("../utils/exportNoteDocx.js");
-        await exportNoteAsDocx(title, docJson);
-      }
-    } finally {
-      setExporting(null);
-    }
-  };
-
   if (!note) {
     return (
       <div style={styles.wrapper}>
@@ -297,11 +256,18 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
   }
 
   const lastUpdated = note?.updatedAt
-    ? new Date(note.updatedAt).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })
+    ? new Date(note.updatedAt).toLocaleString("id-ID", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      })
     : null;
 
   return (
     <div style={styles.wrapper}>
+      <style>{`
+        .btn-action-delete { background: none; border: none; cursor: pointer; color: #94a3b8; padding: 8px 10px; border-radius: 8px; transition: all 0.15s; display: inline-flex; align-items: center; justify-content: center; }
+        .btn-action-delete:hover { color: #ef4444 !important; background: #fef2f2 !important; }
+      `}</style>
       <div style={styles.header}>
         <input
           style={styles.titleInput}
@@ -312,7 +278,9 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
         />
         <div style={styles.metaRow}>
           <span style={styles.metaText}>
-            {lastUpdated ? `Diperbarui ${lastUpdated}` : "Belum pernah disimpan"}
+            {lastUpdated
+              ? `Diperbarui ${lastUpdated}`
+              : "Belum pernah disimpan"}
           </span>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             {saveStatus !== "idle" && (
@@ -322,41 +290,13 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
                 {saveStatus === "failed" && "Failed to save"}
               </span>
             )}
-            <div style={styles.exportWrap}>
-              <button
-                style={styles.exportBtn}
-                onClick={() => setShowExportMenu((s) => !s)}
-                disabled={!!exporting}
-              >
-                {exporting ? "Mengekspor..." : "Export"} ▾
-              </button>
-              {showExportMenu && (
-                <div style={styles.exportMenu}>
-                  <button
-                    style={styles.exportMenuItem}
-                    onClick={() => handleExport("pdf")}
-                  >
-                    📄 PDF
-                  </button>
-                  <button
-                    style={styles.exportMenuItem}
-                    onClick={() => handleExport("docx")}
-                  >
-                    📃 Word (.docx)
-                  </button>
-                </div>
-              )}
-            </div>
             {onDeleted && (
               <button
-                style={{
-                  ...styles.exportBtn,
-                  color: "#dc2626",
-                  borderColor: "#fee2e2",
-                }}
+                className="btn-action-delete"
+                title="Hapus"
                 onClick={() => onDeleted(note.id)}
               >
-                Hapus
+                <TrashIcon size={16} />
               </button>
             )}
           </div>
@@ -373,7 +313,10 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
             <ToolIcon>B</ToolIcon>
           </button>
           <button
-            style={{ ...styles.toolBtn(editor.isActive("italic")), fontStyle: "italic" }}
+            style={{
+              ...styles.toolBtn(editor.isActive("italic")),
+              fontStyle: "italic",
+            }}
             onClick={() => editor.chain().focus().toggleItalic().run()}
             title="Italic"
           >

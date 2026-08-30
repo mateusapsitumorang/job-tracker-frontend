@@ -371,7 +371,7 @@ const styles = {
     borderRadius: 6,
     border: "none",
     background: "transparent",
-    color: pinned ? GREEN : "#cbd5e1",
+    color: pinned ? GREEN : "#94a3b8",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

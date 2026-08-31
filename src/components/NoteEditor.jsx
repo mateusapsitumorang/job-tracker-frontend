@@ -5,6 +5,10 @@ import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import Placeholder from "@tiptap/extension-placeholder";
+import Table from "@tiptap/extension-table";
+import TableRow from "@tiptap/extension-table-row";
+import TableHeader from "@tiptap/extension-table-header";
+import TableCell from "@tiptap/extension-table-cell";
 import api from "../api/axios.js";
 
 const GREEN = "#15803d";
@@ -118,6 +122,21 @@ const styles = {
     overflowY: "auto",
     padding: "16px 20px 40px",
   },
+  tableToolbar: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+    padding: "6px 14px",
+    borderBottom: "1px solid #f1f5f4",
+    background: GREEN_BG,
+    flexWrap: "wrap",
+  },
+  tableToolbarLabel: {
+    fontSize: 11,
+    fontWeight: 600,
+    color: GREEN,
+    marginRight: 6,
+  },
   emptyState: {
     flex: 1,
     display: "flex",
@@ -149,6 +168,10 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
       Link.configure({ openOnClick: false, autolink: true }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       Placeholder.configure({ placeholder: "Mulai menulis catatan..." }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableHeader,
+      TableCell,
     ],
     content: (() => {
       if (!note?.content) return "";
@@ -417,6 +440,22 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
           <span style={styles.divider} />
 
           <button
+            style={styles.toolBtn(editor.isActive("table"))}
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                .run()
+            }
+            title="Sisipkan Tabel"
+          >
+            ⊞
+          </button>
+
+          <span style={styles.divider} />
+
+          <button
             style={styles.toolBtn(false)}
             onClick={() => editor.chain().focus().undo().run()}
             title="Undo"
@@ -429,6 +468,84 @@ const NoteEditor = ({ note, onSaved, onDeleted }) => {
             title="Redo"
           >
             ↻
+          </button>
+        </div>
+      )}
+
+      {editor && editor.isActive("table") && (
+        <div style={styles.tableToolbar}>
+          <span style={styles.tableToolbarLabel}>Tabel:</span>
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().addColumnBefore().run()}
+            title="Tambah Kolom Sebelum"
+          >
+            ⯇+
+          </button>
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().addColumnAfter().run()}
+            title="Tambah Kolom Sesudah"
+          >
+            +⯈
+          </button>
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().deleteColumn().run()}
+            title="Hapus Kolom"
+          >
+            ✕│
+          </button>
+
+          <span style={styles.divider} />
+
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().addRowBefore().run()}
+            title="Tambah Baris Sebelum"
+          >
+            ⯅+
+          </button>
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().addRowAfter().run()}
+            title="Tambah Baris Sesudah"
+          >
+            +⯆
+          </button>
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().deleteRow().run()}
+            title="Hapus Baris"
+          >
+            ✕─
+          </button>
+
+          <span style={styles.divider} />
+
+          <button
+            style={styles.toolBtn(false)}
+            onClick={() => editor.chain().focus().mergeOrSplitCells().run()}
+            title="Gabung / Pisah Sel"
+          >
+            ⊟
+          </button>
+          <button
+            style={styles.toolBtn(editor.isActive("tableHeader"))}
+            onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+            title="Baris Header"
+          >
+            H▤
+          </button>
+
+          <span style={styles.divider} />
+
+          <button
+            style={{ ...styles.toolBtn(false), color: "#dc2626" }}
+            onClick={() => editor.chain().focus().deleteTable().run()}
+            title="Hapus Tabel"
+          >
+            🗑
           </button>
         </div>
       )}

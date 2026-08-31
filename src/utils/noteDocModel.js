@@ -2,9 +2,9 @@
 // supaya bisa dipakai ulang oleh exporter PDF maupun Word (.docx) tanpa
 // masing-masing harus mem-parsing struktur Tiptap sendiri-sendiri.
 //
-// Block yang didukung: heading, paragraph, bulletList, orderedList.
-// Tiap block berisi "runs" (untuk heading/paragraph) atau "items" (list),
-// di mana tiap run = { text, bold, italic, underline, link }.
+// Block yang didukung: heading, paragraph, bulletList, orderedList, table.
+// Tiap block berisi "runs" (untuk heading/paragraph), "items" (list), atau
+// "rows" (table), di mana tiap run = { text, bold, italic, underline, link }.
 
 const runsFromInline = (content = []) => {
   const runs = [];
@@ -32,6 +32,39 @@ const listItemParagraphs = (listItemContent = []) => {
     }
   }
   return runs;
+};
+
+// Satu sel tabel bisa berisi 1+ paragraph (jarang list); gabungkan jadi satu
+// deretan runs, dengan newline run di antara paragraph supaya tidak nempel.
+const cellRuns = (cellContent = []) => {
+  const runs = [];
+  cellContent.forEach((child, idx) => {
+    if (idx > 0) runs.push({ text: "\n", bold: false, italic: false, underline: false, link: null });
+    if (child.type === "paragraph") {
+      runs.push(...runsFromInline(child.content || []));
+    } else if (Array.isArray(child.content)) {
+      // list/blockquote dsb di dalam sel - ambil teksnya saja.
+      child.content.forEach((li) => {
+        if (Array.isArray(li.content)) runs.push(...listItemParagraphs(li.content));
+      });
+    }
+  });
+  return runs;
+};
+
+const tableToRows = (tableNode) => {
+  const rows = [];
+  for (const rowNode of tableNode.content || []) {
+    if (rowNode.type !== "tableRow") continue;
+    const cells = (rowNode.content || []).map((cellNode) => ({
+      header: cellNode.type === "tableHeader",
+      colspan: cellNode.attrs?.colspan || 1,
+      rowspan: cellNode.attrs?.rowspan || 1,
+      runs: cellRuns(cellNode.content || []),
+    }));
+    rows.push(cells);
+  }
+  return rows;
 };
 
 export const tiptapJsonToBlocks = (doc) => {
@@ -70,6 +103,12 @@ export const tiptapJsonToBlocks = (doc) => {
           items: (node.content || [])
             .filter((li) => li.type === "listItem")
             .map((li) => listItemParagraphs(li.content || [])),
+        });
+        break;
+      case "table":
+        blocks.push({
+          type: "table",
+          rows: tableToRows(node),
         });
         break;
       default:

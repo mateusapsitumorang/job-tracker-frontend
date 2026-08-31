@@ -54,6 +54,44 @@ const wrapRuns = (doc, runs, maxWidth, baseFontSize) => {
   return lines;
 };
 
+// Sama seperti wrapRuns, tapi mengerti run newline ("\n" - dipakai untuk
+// memisahkan paragraph di dalam satu sel tabel) sebagai pemaksa baris baru,
+// dan mendukung "forceBold" untuk sel header.
+const wrapCellRuns = (doc, runs, maxWidth, fontSize, forceBold) => {
+  const lines = [];
+  let current = [];
+  let currentWidth = 0;
+
+  for (const run of runs) {
+    if (run.text === "\n") {
+      lines.push(current);
+      current = [];
+      currentWidth = 0;
+      continue;
+    }
+    const words = run.text.split(/(\s+)/).filter((w) => w !== "");
+    for (const word of words) {
+      const isSpace = /^\s+$/.test(word);
+      const bold = forceBold || run.bold;
+      const fontStyle = bold && run.italic ? "bolditalic" : bold ? "bold" : run.italic ? "italic" : "normal";
+      doc.setFont("helvetica", fontStyle);
+      doc.setFontSize(fontSize);
+      const wordWidth = doc.getTextWidth(word);
+
+      if (!isSpace && currentWidth + wordWidth > maxWidth && current.length > 0) {
+        lines.push(current);
+        current = [];
+        currentWidth = 0;
+      }
+
+      current.push({ text: word, bold, italic: run.italic, underline: run.underline });
+      currentWidth += wordWidth;
+    }
+  }
+  lines.push(current);
+  return lines;
+};
+
 const drawRunLine = (doc, lineRuns, x, y, fontSize) => {
   let cursorX = x;
   for (const r of lineRuns) {
@@ -117,6 +155,55 @@ export const exportNoteAsPdf = (title, tiptapDocJson) => {
     });
   };
 
+  const renderTableBlock = (block) => {
+    const rows = block.rows;
+    if (!rows || rows.length === 0) return;
+    const numCols = Math.max(
+      1,
+      ...rows.map((r) => r.reduce((sum, c) => sum + (c.colspan || 1), 0)),
+    );
+    const fontSize = 10;
+    const cellPadX = 6;
+    const cellPadY = 5;
+    const lineH = fontSize * 1.35;
+    const colWidth = maxWidth / numCols;
+
+    const rowsData = rows.map((row) =>
+      row.map((cell) => {
+        const width = colWidth * (cell.colspan || 1);
+        const lines = wrapCellRuns(doc, cell.runs, width - cellPadX * 2, fontSize, cell.header);
+        const height = Math.max(lines.length, 1) * lineH + cellPadY * 2;
+        return { lines, width, height, header: cell.header };
+      }),
+    );
+
+    rowsData.forEach((cells) => {
+      const rowHeight = Math.max(...cells.map((c) => c.height), lineH + cellPadY * 2);
+      ensureSpace(rowHeight + 2);
+      let x = PAGE_MARGIN;
+      cells.forEach((cell) => {
+        doc.setDrawColor(216, 223, 220);
+        doc.setLineWidth(0.6);
+        if (cell.header) {
+          doc.setFillColor(240, 253, 244);
+          doc.rect(x, y, cell.width, rowHeight, "FD");
+        } else {
+          doc.rect(x, y, cell.width, rowHeight, "S");
+        }
+        doc.setTextColor(cell.header ? 21 : 15, cell.header ? 128 : 23, cell.header ? 61 : 42);
+        let ty = y + cellPadY + fontSize * 0.9;
+        cell.lines.forEach((lineRuns) => {
+          drawRunLine(doc, lineRuns, x + cellPadX, ty, fontSize);
+          ty += lineH;
+        });
+        doc.setTextColor(15, 23, 42);
+        x += cell.width;
+      });
+      y += rowHeight;
+    });
+    y += 8;
+  };
+
   for (const block of blocks) {
     if (block.type === "heading") {
       const size = FONT_SIZES[`heading${block.level}`] || FONT_SIZES.heading3;
@@ -137,6 +224,8 @@ export const exportNoteAsPdf = (title, tiptapDocJson) => {
         renderRunsBlock(itemRuns, FONT_SIZES.paragraph, 16, `${i + 1}.`);
       });
       y += 4;
+    } else if (block.type === "table") {
+      renderTableBlock(block);
     }
   }
 
